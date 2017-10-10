@@ -1,8 +1,11 @@
 
 console.log("hello world")
+var symbol;
 
 $( document ).ready(function() {
+    symbol = window.location.href.split("=")[1];//don't know about robustness
     graph()
+
 });
 
 // function getData(){
@@ -29,7 +32,7 @@ var line = d3.line()
     .x(function(d) { return x(d.timestampms); })
     .y(function(d) { return y(parseFloat(d.price)); });
 
-d3.json("http:/graph/data", function(error, data) {
+d3.json("http:/graph/data?symbol=" + symbol, function(error, data) {
   if (error) throw error;
     console.log(data)
     x.domain(d3.extent(data, function(d) { return d.timestampms; }));
