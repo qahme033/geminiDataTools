@@ -23,8 +23,8 @@ router.get('/graph/data', function (req, res, next) {
       var symbol = req.query.symbol;
       console.log(req.query.symbol)
       var date = new Date().getTime()
-      //date = Math.floor(date/1000)-1000000
-      request('https://api.gemini.com/v1/trades/'+symbol+ '?limit_trades=1000' , function(error, response, body){
+      date = Math.floor(date/1000)-(60*30)
+      request('https://api.gemini.com/v1/trades/'+symbol+ '?limit_trades=1000&since=' + date + "", function(error, response, body){
         if(!error){
           res.send(body)
         }

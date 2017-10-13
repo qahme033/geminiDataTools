@@ -8,7 +8,6 @@ $( document ).ready(function() {
    console.log(graph)
    graph.update();
   setInterval(graph.update.bind(graph), 5000);
-
 });
 
 
@@ -69,8 +68,11 @@ d3.json("http:/graph/data?symbol=" + symbol, function(error, data) {
       .attr("stroke-linecap", "round")
       .attr("stroke-width", 1.5)
       .attr("d", thisGraph.line);
+   thisGraph.since = thisGraph.x.domain()[0]
+   console.log(thisGraph.since)
 
   });
+
 }
 
 Graph.prototype.live = function() {
