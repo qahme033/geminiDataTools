@@ -4,48 +4,50 @@ var symbol;
 
 $( document ).ready(function() {
     symbol = window.location.href.split("=")[1];//don't know about robustness
-    graph()
+   var graph = new Graph();
+   console.log(graph)
+   graph.update()
 
 });
 
-// function getData(){
-//     $.getJSON( "http:/graph/data", function( data ) {
-//         console.log(data)
-//     });
-// }
-function graph(){
-    var svg = d3.select("svg"),
-    margin = {top: 20, right: 20, bottom: 30, left: 50},
-    width = +svg.attr("width") - margin.left - margin.right,
-    height = +svg.attr("height") - margin.top - margin.bottom,
-    g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-    console.log(svg)
-var parseTime = d3.timeParse("%d-%b-%y");
 
-var x = d3.scaleTime()
-    .rangeRound([0, width]);
+class Graph {
+  constructor(){
+    let thisGraph = this;
+      thisGraph.svg = d3.select("svg");
+      thisGraph.margin = {top: 20, right: 20, bottom: 30, left: 50};
+      thisGraph.width = +thisGraph.svg.attr("width") - thisGraph.margin.left - thisGraph.margin.right;
+      thisGraph.height = +thisGraph.svg.attr("height") - thisGraph.margin.top - thisGraph.margin.bottom;
+      thisGraph.g = thisGraph.svg.append("g").attr("transform", "translate(" + thisGraph.margin.left + "," + this.margin.top + ")");
+      thisGraph.parseTime = d3.timeParse("%d-%b-%y");
+      thisGraph.x = d3.scaleTime()
+          .rangeRound([0, thisGraph.width]);
+      thisGraph.y = d3.scaleLinear()
+          .rangeRound([thisGraph.height, 0]);
+      thisGraph.line = d3.line()
+          .x(function(d) { return thisGraph.x(d.timestampms); })
+          .y(function(d) { return thisGraph.y(parseFloat(d.price)); });
+    }
+}
 
-var y = d3.scaleLinear()
-    .rangeRound([height, 0]);
 
-var line = d3.line()
-    .x(function(d) { return x(d.timestampms); })
-    .y(function(d) { return y(parseFloat(d.price)); });
-
+Graph.prototype.update = function (){
+var thisGraph = this;
 d3.json("http:/graph/data?symbol=" + symbol, function(error, data) {
   if (error) throw error;
     console.log(data)
-    x.domain(d3.extent(data, function(d) { return d.timestampms; }));
-    y.domain(d3.extent(data, function(d) { return parseFloat(d.price); }));
+    console.log(thisGraph, this)
+    thisGraph.x.domain(d3.extent(data, function(d) { return d.timestampms; }));
+    thisGraph.y.domain(d3.extent(data, function(d) { return parseFloat(d.price); }));
 
-  g.append("g")
-      .attr("transform", "translate(0," + height + ")")
-      .call(d3.axisBottom(x).ticks(6).tickFormat(d3.timeFormat("%d %B %Y")))
+  thisGraph.g.append("g")
+      .attr("transform", "translate(0," + thisGraph.height + ")")
+      .call(d3.axisBottom(thisGraph.x).ticks(6).tickFormat(d3.timeFormat("%d %B %Y")))
     .select(".domain")
       .remove();
 
-  g.append("g")
-      .call(d3.axisLeft(y))
+  thisGraph.g.append("g")
+      .call(d3.axisLeft(thisGraph.y))
     .append("text")
       .attr("fill", "#000")
       .attr("transform", "rotate(-90)")
@@ -54,15 +56,13 @@ d3.json("http:/graph/data?symbol=" + symbol, function(error, data) {
       .attr("text-anchor", "end")
       .text("Price ($)");
 
-  g.append("path")
+  thisGraph.g.append("path")
       .datum(data)
       .attr("fill", "none")
       .attr("stroke", "steelblue")
       .attr("stroke-linejoin", "round")
       .attr("stroke-linecap", "round")
       .attr("stroke-width", 1.5)
-      .attr("d", line);
-});
-console.log(svg)
-
+      .attr("d", thisGraph.line);
+  });
 }
