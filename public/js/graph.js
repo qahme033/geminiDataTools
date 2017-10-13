@@ -6,7 +6,7 @@ $( document ).ready(function() {
     symbol = window.location.href.split("=")[1];//don't know about robustness
    var graph = new Graph();
    console.log(graph)
-   graph.update()
+  setInterval(graph.update.bind(graph), 1000);
 
 });
 
@@ -32,6 +32,7 @@ class Graph {
 
 
 Graph.prototype.update = function (){
+  console.log("update")
 var thisGraph = this;
 d3.json("http:/graph/data?symbol=" + symbol, function(error, data) {
   if (error) throw error;
@@ -56,7 +57,7 @@ d3.json("http:/graph/data?symbol=" + symbol, function(error, data) {
       .attr("text-anchor", "end")
       .text("Price ($)");
 
-  thisGraph.g.append("path")
+  var dataCurve = thisGraph.g.append("path")
       .datum(data)
       .attr("fill", "none")
       .attr("stroke", "steelblue")
@@ -64,5 +65,13 @@ d3.json("http:/graph/data?symbol=" + symbol, function(error, data) {
       .attr("stroke-linecap", "round")
       .attr("stroke-width", 1.5)
       .attr("d", thisGraph.line);
+
+  dataCurve.exit().remove()
+
   });
+}
+
+Graph.prototype.live = function() {
+  var self = this;
+  self.interval = setTimeout(self.update.bind(this), 1000);
 }
