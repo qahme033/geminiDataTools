@@ -6,7 +6,8 @@ $( document ).ready(function() {
     symbol = window.location.href.split("=")[1];//don't know about robustness
    var graph = new Graph();
    console.log(graph)
-  setInterval(graph.update.bind(graph), 1000);
+   graph.update();
+  setInterval(graph.update.bind(graph), 5000);
 
 });
 
@@ -27,6 +28,9 @@ class Graph {
       thisGraph.line = d3.line()
           .x(function(d) { return thisGraph.x(d.timestampms); })
           .y(function(d) { return thisGraph.y(parseFloat(d.price)); });
+      thisGraph.verticleAxis    = thisGraph.g.append("g");
+      thisGraph.horizontalAxis  = thisGraph.g.append("g");
+      thisGraph.liveCurve       = thisGraph.g.append("path");
     }
 }
 
@@ -41,13 +45,13 @@ d3.json("http:/graph/data?symbol=" + symbol, function(error, data) {
     thisGraph.x.domain(d3.extent(data, function(d) { return d.timestampms; }));
     thisGraph.y.domain(d3.extent(data, function(d) { return parseFloat(d.price); }));
 
-  thisGraph.g.append("g")
+  thisGraph.horizontalAxis
       .attr("transform", "translate(0," + thisGraph.height + ")")
-      .call(d3.axisBottom(thisGraph.x).ticks(6).tickFormat(d3.timeFormat("%d %B %Y")))
+      .call(d3.axisBottom(thisGraph.x).ticks(6).tickFormat(d3.timeFormat("%X")))
     .select(".domain")
       .remove();
 
-  thisGraph.g.append("g")
+  thisGraph.verticleAxis
       .call(d3.axisLeft(thisGraph.y))
     .append("text")
       .attr("fill", "#000")
@@ -57,7 +61,7 @@ d3.json("http:/graph/data?symbol=" + symbol, function(error, data) {
       .attr("text-anchor", "end")
       .text("Price ($)");
 
-  var dataCurve = thisGraph.g.append("path")
+  thisGraph.liveCurve
       .datum(data)
       .attr("fill", "none")
       .attr("stroke", "steelblue")
@@ -65,8 +69,6 @@ d3.json("http:/graph/data?symbol=" + symbol, function(error, data) {
       .attr("stroke-linecap", "round")
       .attr("stroke-width", 1.5)
       .attr("d", thisGraph.line);
-
-  dataCurve.exit().remove()
 
   });
 }
