@@ -10,9 +10,18 @@ module.exports = function (app) {
 app.use('/', router);
 };
 
-router.get('/graph', function (req, res, next) {
+router.get('/rest/graph', function (req, res, next) {
     var symbol = req.query.symbol;
     res.render('graph', {
+        title: 'Main Graph',
+        symbol: symbol
+       // articles: articles
+      });
+});
+
+router.get('/websocket/graph', function (req, res, next) {
+    var symbol = req.query.symbol;
+    res.render('wGraph', {
         title: 'Main Graph',
         symbol: symbol
        // articles: articles

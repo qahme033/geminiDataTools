@@ -1,16 +1,4 @@
 
-console.log("hello world")
-var symbol;
-
-$( document ).ready(function() {
-    symbol = window.location.href.split("=")[1];//don't know about robustness
-   var graph = new Graph();
-   console.log(graph)
-   graph.update();
-  setInterval(graph.update.bind(graph), 5000);
-});
-
-
 class Graph {
   constructor(){
     let thisGraph = this;
@@ -34,8 +22,7 @@ class Graph {
 }
 
 
-Graph.prototype.update = function (){
-  console.log("update")
+Graph.prototype.draw = function (){
 var thisGraph = this;
 d3.json("http:/graph/data?symbol=" + symbol, function(error, data) {
   if (error) throw error;
@@ -75,7 +62,3 @@ d3.json("http:/graph/data?symbol=" + symbol, function(error, data) {
 
 }
 
-Graph.prototype.live = function() {
-  var self = this;
-  self.interval = setTimeout(self.update.bind(this), 1000);
-}
