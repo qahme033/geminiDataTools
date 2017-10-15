@@ -27,42 +27,35 @@ router.get('/fetch',function (req, res, next) {
     // });
      var symbol = req.query.symbol;
      console.log(symbol)
+     var currentTime = new Date()
+     getNewBatches(symbol,res);
 
-    synchPromise.then(function(){
-     	return TradesTable.max('timestampms').then(max => {
- 		 console.log("Last time was " + max)
- 		 return max
-		})
-	//	return lastTimePromise;
-     })
-    .then(function(lastTime){
-		request('https://api.gemini.com/v1/trades/'+symbol+ '?limit_trades=1000&since=' + (lastTime+1), function(error, response, body){
-	        if(!error){
-	          res.send(body)
-	        }
-	       	var trades = JSON.parse(body)
-		    TradesTable.bulkCreate(trades)
-	    })
-
-
-    })
-
-
-    // console.log(lastTimePromise)
-
-    //  lastTimePromise.then(function(lastTime){
-    //  	request('https://api.gemini.com/v1/trades/'+symbol+ '?limit_trades=1000&since=' + lastTime, function(error, response, body){
-    //     if(!error){
-    //       res.send(body)
-    //     }
-    //     var trades = JSON.parse(body)
-
-    //     // for(trade in trades) //changing structure to tid with data 
-    //     // 	trades[trade] = {tid : trades[trade].tid, data : trades[trade]}
-    //     // console.log(trades)
-
-    //     //TradesTable.bulkCreate(trades)
-    //   })
-    //  })
-     
 });
+
+
+function getNewBatches(symbol,res, lastTime){
+	var startTime = new Date().getTime();
+    
+    if(!lastTime) {
+    	synchPromise = synchPromise.then(function(){
+	 		return TradesTable.max('timestampms').then(max => {
+				console.log("Last time was " + max)
+			 	return max
+			})
+	 	})
+    }
+	synchPromise.then(function(lastTime){
+		return request('https://api.gemini.com/v1/trades/'+symbol+ '?limit_trades=1000&since=' + (lastTime+1), function(error, response, body){
+	       	var trades = JSON.parse(body)
+		    TradesTable.bulkCreate(trades).then(function(){
+		    	var endTime = new Date().getTime();
+		    	var timeElapsed = endTime - startTime
+		    	console.log("timeElapsed " + timeElapsed + "ms")
+		    	if(timeElapsed < 250)
+		    		setTimeout(function(){getNewBatch(symbol,res)}, 250 - timeElapsed)
+		    	else
+		    		getNewBatches(symbol, res)
+		    })
+	    })
+	})
+}
