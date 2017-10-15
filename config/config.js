@@ -9,7 +9,7 @@ var config = {
       name: 'money2'
     },
     port: process.env.PORT || 3000,
-    db: 'mongodb://localhost/money2-development'
+    db: 'postgres://localhost/trades'
   },
 
   test: {
@@ -18,7 +18,7 @@ var config = {
       name: 'money2'
     },
     port: process.env.PORT || 3000,
-    db: 'mongodb://localhost/money2-test'
+    db: ''
   },
 
   production: {

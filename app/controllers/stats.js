@@ -1,7 +1,5 @@
 var express = require('express'),
-router = express.Router(),
-mongoose = require('mongoose'),
-Article = mongoose.model('Article');
+router = express.Router();
 
 var request = require('request');
 var symbols = { 'btcusd' : 0, 'ethbtc' : 1, 'ethusd': 2}

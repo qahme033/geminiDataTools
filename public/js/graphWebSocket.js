@@ -20,7 +20,7 @@ function handleMessage(event) {
   	if(data.type == "heartbeat"){
   		console.log("heartbeat")
   	} else if(data.events[0].type == "trade"){
-  		tradesBuffer.push({timestampms : data.timestampms, price : data.price})
+  		tradesBuffer.push({timestampms : data.timestampms, price : data.price});
   		console.log(tradesBuffer)
 
   	}
