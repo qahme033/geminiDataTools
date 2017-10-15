@@ -5,13 +5,15 @@ var express = require('express'),
 var Sequelize = require('sequelize')
 const connection = new Sequelize('trades', 'qasimahmed', 'pass', {
 dialect: 'postgres'});
+
 var TradesTable = connection.define('TradesTable', {
 	tid: { type: Sequelize.INTEGER, primaryKey: true },
-	data : Sequelize.JSONB,
+	timestampms : Sequelize.BIGINT,
+	price : Sequelize.DOUBLE,
+	amount: Sequelize.DOUBLE,
+	type : Sequelize.STRING,
 })
-connection.sync().then(function(trade){
-    	//console.log(trade)
- })
+var synchPromise = connection.sync()
 
 
 module.exports = function (app) {
@@ -25,16 +27,18 @@ router.get('/fetch',function (req, res, next) {
     // });
      var symbol = req.query.symbol;
      console.log(symbol)
-     request('https://api.gemini.com/v1/trades/'+symbol+ '?limit_trades=1000&since=1444311607801', function(error, response, body){
+     synchPromise.then(function(){
+     	request('https://api.gemini.com/v1/trades/'+symbol+ '?limit_trades=1000&since=1444311607801', function(error, response, body){
         if(!error){
           res.send(body)
         }
         var trades = JSON.parse(body)
 
-        for(trade in trades) //changing structure to tid with data 
-        	trades[trade] = {tid : trades[trade].tid, data : trades[trade]}
-        console.log(trades)
+        // for(trade in trades) //changing structure to tid with data 
+        // 	trades[trade] = {tid : trades[trade].tid, data : trades[trade]}
+        // console.log(trades)
 
         TradesTable.bulkCreate(trades)
       })
+     })
 });
