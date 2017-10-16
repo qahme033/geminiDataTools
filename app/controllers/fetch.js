@@ -6,14 +6,8 @@ var Sequelize = require('sequelize')
 const connection = new Sequelize('trades', 'qasimahmed', 'pass', {
 dialect: 'postgres'});
 
-var TradesTable = connection.define('TradesTable', {
-	tid: { type: Sequelize.INTEGER, primaryKey: true },
-	timestampms : Sequelize.BIGINT,
-	price : Sequelize.DOUBLE,
-	amount: Sequelize.DOUBLE,
-	type : Sequelize.STRING,
-})
-var synchPromise = connection.sync()
+var TradesTable ;
+var synchPromise ;
 
 
 module.exports = function (app) {
@@ -21,11 +15,15 @@ module.exports = function (app) {
 };
 
 router.get('/fetch',function (req, res, next) {
-    // res.render('fetch', {
-    //   title: 'Fetching Page',
-    //  // articles: articles
-    // });
-     var symbol = req.query.symbol;
+	 var symbol = req.query.symbol;
+	TradesTable = connection.define('TradesTable_'+ symbol, {
+		tid: { type: Sequelize.INTEGER, primaryKey: true },
+		timestampms : Sequelize.BIGINT,
+		price : Sequelize.DOUBLE,
+		amount: Sequelize.DOUBLE,
+		type : Sequelize.STRING,
+	})
+	synchPromise = connection.sync();
      console.log(symbol)
      var currentTime = new Date()
      getNewBatches(symbol,res);
@@ -35,7 +33,6 @@ router.get('/fetch',function (req, res, next) {
 
 function getNewBatches(symbol,res, lastTime){
 	var startTime = new Date().getTime();
-    
     if(!lastTime) {
     	synchPromise = synchPromise.then(function(){
 	 		return TradesTable.max('timestampms').then(max => {
