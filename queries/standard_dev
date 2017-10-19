@@ -1,0 +1,3 @@
+select stddev(price), (avg(price)-stddev(price)), avg(price), avg(price)+stddev(price) from public."TradesTable_ethusds"
+where day = 16 AND month = 10 and year = 2017 
+-- order by timestampms desc
